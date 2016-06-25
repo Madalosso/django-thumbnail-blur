@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Django-thumbnail-blur by Madalosso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Django-thumbnail-blur</h1>
+      <h2 class="project-tagline">Django test to create thumbnails from ImageField and save a 3x3px base64 encoded img</h2>
+      <a href="https://github.com/Madalosso/django-thumbnail-blur" class="btn">View on GitHub</a>
+      <a href="https://github.com/Madalosso/django-thumbnail-blur/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Madalosso/django-thumbnail-blur/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="django-image-preview-with-dominant-or-blurred-images" class="anchor" href="#django-image-preview-with-dominant-or-blurred-images" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Django Image Preview with Dominant or Blurred images.</h1>
+
+<h3>
+<a id="the-problem" class="anchor" href="#the-problem" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The problem.</h3>
+
+<p>Image load is a major topic when the subject is fast load and presentation of a website or web application. I've recently learned and coded a solution that I think you guys could use in your own projects.</p>
+
+<p>First of all, I expect anyone in here to know the concept of thumbnails, if you don't, make a quick search then get back :)</p>
+
+<h3>
+<a id="the-context" class="anchor" href="#the-context" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The context</h3>
+
+<p>I've created this solution on a Django App that works as an API to provide information to another app. In this application, the admin had to be able to upload Images to fill a ImageField of one of my models.</p>
+
+<p>As the admins who provide those images to the app aren't trained to treat the images for web, i need my app to do it for them.</p>
+
+<h3>
+<a id="the-solution" class="anchor" href="#the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The solution</h3>
+
+<p>First thing to do: Create thumbnails
+There are a lot of good packages to create thumbnails that you can find in djangopackages.com.</p>
+
+<p>I chose to create my own solution using the "Pillow"- a fork of Python Imaging Library that provides lots of resources. Pillow has a module called "Image" with a thumbnail function, this function will re-size your image with the size that you provide as an argument and will remove ExIf  as well, creating a lighter version of your original file.</p>
+
+<h3>
+<a id="show-me-the-code" class="anchor" href="#show-me-the-code" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Show me the code</h3>
+
+<p>Here is where everything happens. While my model.py defines a class with 3 ImageFields, only one field is shown on my django admin, this way, the admin will provide only one picture, and the form will override the standard save method, using him to create other versions of the original picture.</p>
+
+<p>----pictures----</p>
+
+<p>Now, in this example I’m using the 'storages' package to upload these files to my Amazon S3 bucket, but it works on local storage too.</p>
+
+<h3>
+<a id="go-further" class="anchor" href="#go-further" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GO FURTHER!</h3>
+
+<p>OK, now that we have thumbnails, it's time to go a little further to speed up the application load time. Users are impatient, they demand to see something ASAP when they try to load your app, so lets show them something.</p>
+
+<p>Lets create a preview that will be displayed only in the interval between data load from our API and the complete load of our original or thumbnails images from my Amazon S3 bucket.
+There are 2 ways to do it.</p>
+
+<ul>
+<li>Find the dominant color of a image and display it on the original image size. (Used by Google and Pinterest). I won't be showing how to implement this method, but you can look for functions that already find the right color for each image and store it with your data like the blurred image.</li>
+<li>Create a really tiny thumbnail to be stored as a string on our database and display it. It will be blurred and fill the original image size. This way the content will be larger than choosing the dominant approach, but the result is far better.</li>
+</ul>
+
+<p>In both cases, as the data will be really small, we can convert the data to a base64 encoded string and save it on the database and return the preview image data along with the rest of the data from the requested object. So the users browser won’t need to wait for the response from Amazon (or your local storage) to see the app. Of course, the preview image should be replaced immediately after the load of the original/thumbnail image. But you already get some seconds displaying something to hold your users attention.</p>
+
+<h3>
+<a id="shitty-resolution-image-preview--aka-blurred-image" class="anchor" href="#shitty-resolution-image-preview--aka-blurred-image" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Shitty resolution image preview  (A.k.a. blurred image)</h3>
+
+<p>In this approach I set a [9, 9] pixels size to create a extra thumbnail and encoded the data to be storage on the DB. Check the code and some results bellow:
+--img--
+Results:
+--tons of images--
+Nice website to test your images:
+<a href="http://codebeautify.org/base64-to-image-converter">http://codebeautify.org/base64-to-image-converter</a></p>
+
+<p>also, I chose to save the [9, 9] image as .bmp because it’s smaller than JPG format… Didn’t research why is that, but I think it’s because the JPG has info to decompress his data, and this extra info must be the reason to the extra bytes.</p>
+
+<p>Thanks to Wagner Barreto for many tips about the topic.</p>
+
+<p>Usefull links:</p>
+
+<p><a href="https://code.facebook.com/posts/991252547593574/the-technology-behind-preview-photos/">https://code.facebook.com/posts/991252547593574/the-technology-behind-preview-photos/</a></p>
+
+<p><a href="https://dev.opera.com/articles/native-responsive-images/">https://dev.opera.com/articles/native-responsive-images/</a></p>
+
+<p><a href="http://davidbcalhoun.com/2011/when-to-base64-encode-images-and-when-not-to/">http://davidbcalhoun.com/2011/when-to-base64-encode-images-and-when-not-to/</a></p>
+
+<p><a href="https://jmperezperez.com/medium-image-progressive-loading-placeholder/">https://jmperezperez.com/medium-image-progressive-loading-placeholder/</a></p>
+
+<p><a href="https://manu.ninja/dominant-colors-for-lazy-loading-images">https://manu.ninja/dominant-colors-for-lazy-loading-images</a></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Madalosso/django-thumbnail-blur">Django-thumbnail-blur</a> is maintained by <a href="https://github.com/Madalosso">Madalosso</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
