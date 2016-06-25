@@ -40,9 +40,9 @@
 <a id="the-solution" class="anchor" href="#the-solution" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The solution</h3>
 
 <p>First thing to do: Create thumbnails
-There are a lot of good packages to create thumbnails that you can find in djangopackages.com.</p>
+There are a lot of good packages to create thumbnails that you can find in <a href="https://www.djangopackages.com/search/?q=thumbnails">djangopackages.com</a>.</p>
 
-<p>I chose to create my own solution using the "Pillow"- a fork of Python Imaging Library that provides lots of resources. Pillow has a module called "Image" with a thumbnail function, this function will re-size your image with the size that you provide as an argument and will remove ExIf  as well, creating a lighter version of your original file.</p>
+<p>I chose to create my own solution using the "<a href="http://pillow.readthedocs.io/en/3.2.x/">PIllow</a>"- a fork of Python Imaging Library that provides lots of resources. Pillow has a module called "Image" with a thumbnail function, this function will re-size your image with the size that you provide as an argument and will remove <a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format">ExIf</a> as well, creating a lighter version of your original file.</p>
 
 <h3>
 <a id="show-me-the-code" class="anchor" href="#show-me-the-code" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Show me the code</h3>
@@ -51,7 +51,7 @@ There are a lot of good packages to create thumbnails that you can find in djang
 
 <p>----pictures----</p>
 
-<p>Now, in this example I’m using the 'storages' package to upload these files to my Amazon S3 bucket, but it works on local storage too.</p>
+<p>Now, in this example I’m using the '<a href="http://django-storages.readthedocs.io/en/latest/">storages</a>' package to upload these files to my Amazon S3 bucket, but it works on local storage too.</p>
 
 <h3>
 <a id="go-further" class="anchor" href="#go-further" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GO FURTHER!</h3>
@@ -73,14 +73,15 @@ There are 2 ways to do it.</p>
 
 <p>In this approach I set a [9, 9] pixels size to create a extra thumbnail and encoded the data to be storage on the DB. Check the code and some results bellow:
 --img--
-Results:
---tons of images--
+Results:</p>
+
+<p>--tons of images--
 Nice website to test your images:
 <a href="http://codebeautify.org/base64-to-image-converter">http://codebeautify.org/base64-to-image-converter</a></p>
 
 <p>also, I chose to save the [9, 9] image as .bmp because it’s smaller than JPG format… Didn’t research why is that, but I think it’s because the JPG has info to decompress his data, and this extra info must be the reason to the extra bytes.</p>
 
-<p>Thanks to Wagner Barreto for many tips about the topic.</p>
+<p>Thanks to <a href="https://br.linkedin.com/in/wagnerbarretto/pt">Wagner Barreto</a> for many tips about the topic.</p>
 
 <p>Usefull links:</p>
 
