@@ -47,33 +47,86 @@ There are a lot of good packages to create thumbnails that you can find in <a hr
 <h3>
 <a id="show-me-the-code" class="anchor" href="#show-me-the-code" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Show me the code</h3>
 
-<p>Here is where everything happens. While my model.py defines a class with 3 ImageFields, only one field is shown on my django admin, this way, the admin will provide only one picture, and the form will override the standard save method, using him to create other versions of the original picture.</p>
+<p>Here is where everything happens. While my model.py defines a class with 3 ImageFields, only one field is shown on my django admin, this way, the admin will provide only one picture, and the form will override the standard save method, using him to create other versions of the original picture.
+forms.py:</p>
 
-<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> Modal <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>boron/DropModal<span class="pl-pds">'</span></span>);
-<span class="pl-k">var</span> Example <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">createClass</span>({
-    <span class="pl-en">showModal</span><span class="pl-k">:</span> <span class="pl-k">function</span>(){
-        <span class="pl-v">this</span>.<span class="pl-smi">refs</span>.<span class="pl-smi">modal</span>.<span class="pl-en">show</span>();
-    },
-    <span class="pl-en">hideModal</span><span class="pl-k">:</span> <span class="pl-k">function</span>(){
-        <span class="pl-v">this</span>.<span class="pl-smi">refs</span>.<span class="pl-smi">modal</span>.<span class="pl-en">hide</span>();
-    },
+<div class="highlight highlight-source-python"><pre><span class="pl-k">from</span> django <span class="pl-k">import</span> forms
+<span class="pl-k">from</span> models <span class="pl-k">import</span> Picture
+<span class="pl-k">from</span> <span class="pl-c1">PIL</span> <span class="pl-k">import</span> Image
+<span class="pl-k">import</span> base64
+<span class="pl-k">import</span> StringIO
+<span class="pl-k">from</span> django.core.files.uploadedfile <span class="pl-k">import</span> InMemoryUploadedFile
 
-    <span class="pl-en">callback</span><span class="pl-k">:</span> <span class="pl-k">function</span>(<span class="pl-c1">event</span>){
-        <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-c1">event</span>);
-    },
+<span class="pl-k">def</span> <span class="pl-en">generate_resized_image</span>(<span class="pl-smi">source</span>, <span class="pl-smi">size</span>):
+    img_l <span class="pl-k">=</span> Image.open(source)
+    img_l.thumbnail(size, Image.<span class="pl-c1">ANTIALIAS</span>)
+    data_img <span class="pl-k">=</span> StringIO.StringIO()
+    img_l.save(data_img, <span class="pl-s"><span class="pl-pds">'</span>JPEG<span class="pl-pds">'</span></span>)
+    img_l.close()
+    img_temp_file <span class="pl-k">=</span> InMemoryUploadedFile(data_img, <span class="pl-c1">None</span>,
+                                         <span class="pl-c1">str</span>(size[<span class="pl-c1">0</span>]) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">'</span>.jpg<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>image/jpeg<span class="pl-pds">'</span></span>,
+                                         data_img.len, <span class="pl-c1">None</span>)
+    <span class="pl-k">return</span> img_temp_file
 
-    <span class="pl-en">render</span><span class="pl-k">:</span> <span class="pl-k">function</span>() {
-        <span class="pl-k">return</span> (
-            <span class="pl-k">&lt;</span>div<span class="pl-k">&gt;</span>
-                <span class="pl-k">&lt;</span>button onClick<span class="pl-k">=</span>{<span class="pl-v">this</span>.<span class="pl-smi">showModal</span>}<span class="pl-k">&gt;</span>Open<span class="pl-k">&lt;</span><span class="pl-k">/</span>button<span class="pl-k">&gt;</span>
-                <span class="pl-k">&lt;</span>Modal ref<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>modal<span class="pl-pds">"</span></span> keyboard<span class="pl-k">=</span>{<span class="pl-v">this</span>.<span class="pl-smi">callback</span>}<span class="pl-k">&gt;</span>
-                    <span class="pl-k">&lt;</span>h2<span class="pl-k">&gt;</span>I am a dialog<span class="pl-k">&lt;</span><span class="pl-k">/</span>h2<span class="pl-k">&gt;</span>
-                    <span class="pl-k">&lt;</span>button onClick<span class="pl-k">=</span>{<span class="pl-v">this</span>.<span class="pl-smi">hideModal</span>}<span class="pl-k">&gt;</span>Close<span class="pl-k">&lt;</span><span class="pl-k">/</span>button<span class="pl-k">&gt;</span>
-                <span class="pl-k">&lt;</span><span class="pl-k">/</span>Modal<span class="pl-k">&gt;</span>
-            <span class="pl-k">&lt;</span><span class="pl-k">/</span>div<span class="pl-k">&gt;</span>
-        );
-    }
-});</pre></div>
+<span class="pl-k">class</span> <span class="pl-en">PictureForm</span>(<span class="pl-e">forms</span>.<span class="pl-e">ModelForm</span>):
+    <span class="pl-k">class</span> <span class="pl-en">Meta</span>:
+        model <span class="pl-k">=</span> Picture
+        fields <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>title<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>description<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>img_l<span class="pl-pds">'</span></span>]
+
+    <span class="pl-k">def</span> <span class="pl-en">save</span>(<span class="pl-smi"><span class="pl-smi">self</span></span>, <span class="pl-smi">commit</span><span class="pl-k">=</span><span class="pl-c1">True</span>):
+        instance <span class="pl-k">=</span> <span class="pl-c1">super</span>(PictureForm, <span class="pl-v">self</span>).save(<span class="pl-v">commit</span><span class="pl-k">=</span><span class="pl-c1">False</span>)
+        source <span class="pl-k">=</span> instance.img_l
+        size_img_l <span class="pl-k">=</span> <span class="pl-c1">1920</span>, <span class="pl-c1">1080</span>
+        size_img_m <span class="pl-k">=</span> <span class="pl-c1">1366</span>, <span class="pl-c1">768</span>
+        size_img_s <span class="pl-k">=</span> <span class="pl-c1">768</span>, <span class="pl-c1">432</span>
+        size_img_blur <span class="pl-k">=</span> <span class="pl-c1">9</span>, <span class="pl-c1">9</span>
+        instance.save()
+        instance.img_blur <span class="pl-k">=</span> image_to_b64(source, size_img_blur)
+        img1 <span class="pl-k">=</span> generate_resized_image(source, size_img_l)
+        instance.img_l <span class="pl-k">=</span> img1
+        instance.img_m <span class="pl-k">=</span> generate_resized_image(source, size_img_m)
+        instance.img_s <span class="pl-k">=</span> generate_resized_image(source, size_img_s)
+        instance.save()
+        <span class="pl-k">return</span> instance</pre></div>
+
+<p>admin.py:</p>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-k">from</span> django.contrib <span class="pl-k">import</span> admin
+<span class="pl-k">from</span> models <span class="pl-k">import</span> Picture
+<span class="pl-k">from</span> forms <span class="pl-k">import</span> PictureForm
+
+
+<span class="pl-k">class</span> <span class="pl-en">PictureAdmin</span>(<span class="pl-e">admin</span>.<span class="pl-e">ModelAdmin</span>):
+    model <span class="pl-k">=</span> Picture
+    form <span class="pl-k">=</span> PictureForm
+    verbose_name <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Picture<span class="pl-pds">"</span></span>
+    verbose_name_plural <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Pictures<span class="pl-pds">"</span></span>
+    list_display <span class="pl-k">=</span> (<span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>title<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>description<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>img_s<span class="pl-pds">'</span></span>,
+                    <span class="pl-s"><span class="pl-pds">'</span>img_m<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>img_l<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>img_blur<span class="pl-pds">'</span></span>)
+
+
+admin.site.register(Picture, PictureAdmin)</pre></div>
+
+<p>models.py</p>
+
+<div class="highlight highlight-source-python"><pre><span class="pl-k">from</span> __future__ <span class="pl-k">import</span> unicode_literals
+<span class="pl-k">from</span> django.db <span class="pl-k">import</span> models
+
+
+<span class="pl-k">def</span> <span class="pl-en">rename_picture</span>(<span class="pl-smi">instance</span>, <span class="pl-smi">filename</span>):
+    <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">'</span><span class="pl-c1">{0}</span>_<span class="pl-c1">{1}</span><span class="pl-pds">'</span></span>.format(instance.id, filename)
+
+
+<span class="pl-k">class</span> <span class="pl-en">Picture</span>(<span class="pl-e">models</span>.<span class="pl-e">Model</span>):
+    title <span class="pl-k">=</span> models.CharField(<span class="pl-v">max_length</span><span class="pl-k">=</span><span class="pl-c1">255</span>, <span class="pl-v">null</span><span class="pl-k">=</span><span class="pl-c1">True</span>, <span class="pl-v">blank</span><span class="pl-k">=</span><span class="pl-c1">True</span>)
+    description <span class="pl-k">=</span> models.CharField(<span class="pl-v">max_length</span><span class="pl-k">=</span><span class="pl-c1">3000</span>, <span class="pl-v">null</span><span class="pl-k">=</span><span class="pl-c1">True</span>, <span class="pl-v">blank</span><span class="pl-k">=</span><span class="pl-c1">True</span>)
+    img_l <span class="pl-k">=</span> models.ImageField(<span class="pl-v">upload_to</span><span class="pl-k">=</span>rename_picture, <span class="pl-v">null</span><span class="pl-k">=</span><span class="pl-c1">False</span>)
+    img_m <span class="pl-k">=</span> models.ImageField(<span class="pl-v">upload_to</span><span class="pl-k">=</span>rename_picture)
+    img_s <span class="pl-k">=</span> models.ImageField(<span class="pl-v">upload_to</span><span class="pl-k">=</span>rename_picture)
+    img_blur <span class="pl-k">=</span> models.CharField(<span class="pl-v">max_length</span><span class="pl-k">=</span><span class="pl-c1">3000</span>)
+
+    <span class="pl-k">def</span> <span class="pl-c1">__unicode__</span>(<span class="pl-smi"><span class="pl-smi">self</span></span>):
+        <span class="pl-k">return</span> <span class="pl-c1">str</span>(<span class="pl-v">self</span>.nome)</pre></div>
 
 <p>----pictures----</p>
 
