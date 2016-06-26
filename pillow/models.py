@@ -1,19 +1,18 @@
 from __future__ import unicode_literals
-
 from django.db import models
-from image_cropping import ImageRatioField, ImageCropField
 
 
-def rename_max_size(instance, filename):
-    return instance.nome + '_big.jpg'
+def rename_picture(instance, filename):
+    return '{0}_{1}'.format(instance.id, filename)
 
 
-class Produto(models.Model):
-    nome = models.CharField(max_length=20)
-    picture_max_size = ImageCropField(upload_to=rename_max_size)
-    cropping = ImageRatioField('picture_max_size', '1366x768')
-    picture_regular_size = models.ImageField()
-    picture_sm = models.CharField(max_length=1000)
+class Picture(models.Model):
+    title = models.CharField(max_length=255, null=True, blank=True)
+    description = models.CharField(max_length=3000, null=True, blank=True)
+    img_l = models.ImageField(upload_to=rename_picture, null=False)
+    img_m = models.ImageField(upload_to=rename_picture)
+    img_s = models.ImageField(upload_to=rename_picture)
+    img_blur = models.CharField(max_length=3000)
 
     def __unicode__(self):
         return str(self.nome)
