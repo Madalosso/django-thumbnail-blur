@@ -166,9 +166,10 @@ class PictureForm(forms.ModelForm):
         return instance
 
 ```
-Results:
+###Results:
 
---tons of images--
+Check some results here: https://ommdevbox.wordpress.com/2016/06/12/django-image-preview-with-dominant-or-blurred-images/
+
 Nice website to test your images:
 [http://codebeautify.org/base64-to-image-converter](http://codebeautify.org/base64-to-image-converter)
 
