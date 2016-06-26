@@ -12,7 +12,7 @@
   <body>
     <section class="page-header">
       <h1 class="project-name">Django-thumbnail-blur</h1>
-      <h2 class="project-tagline">Django test to create thumbnails from ImageField and save a 3x3px base64 encoded img</h2>
+      <h2 class="project-tagline">Create thumbnails from ImageField plus a blurred [9,9] px image.</h2>
       <a href="https://github.com/Madalosso/django-thumbnail-blur" class="btn">View on GitHub</a>
       <a href="https://github.com/Madalosso/django-thumbnail-blur/zipball/master" class="btn">Download .zip</a>
       <a href="https://github.com/Madalosso/django-thumbnail-blur/tarball/master" class="btn">Download .tar.gz</a>
@@ -49,7 +49,10 @@ There are a lot of good packages to create thumbnails that you can find in <a hr
 
 <p>Here is where everything happens. While my model.py defines a class with 3 ImageFields, only one field is shown on my django admin, this way, the admin will provide only one picture, and the form will override the standard save method, using him to create other versions of the original picture.</p>
 
-<p>----pictures----</p>
+<p>'''javascript
+    console.log('eta');
+'''
+----pictures----</p>
 
 <p>Now, in this example I’m using the '<a href="http://django-storages.readthedocs.io/en/latest/">storages</a>' package to upload these files to my Amazon S3 bucket, but it works on local storage too.</p>
 
